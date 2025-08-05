@@ -33,6 +33,7 @@ const habiticaClient = axios.create({
   headers: {
     'x-api-user': HABITICA_USER_ID,
     'x-api-key': HABITICA_API_TOKEN,
+    'x-client': `${HABITICA_USER_ID}-MCP-Server`,
     'Content-Type': 'application/json',
   },
 });
