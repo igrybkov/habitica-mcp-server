@@ -78,7 +78,10 @@ const tools = [
   },
   {
     name: 'create_task',
-    description: t('Create new task', '创建新任务'),
+    description: t(
+      'Create new task. For daily tasks, use frequency/everyX/repeat/startDate to set custom schedules',
+      '创建新任务。对于日常任务，使用 frequency/everyX/repeat/startDate 设置自定义计划'
+    ),
     inputSchema: {
       type: 'object',
       properties: {
@@ -104,6 +107,61 @@ const tools = [
           type: 'number',
           enum: [0.1, 1, 1.5, 2],
           description: t('Priority (0.1=low, 1=med, 1.5=high, 2=urgent)', '优先级 (0.1=低, 1=中, 1.5=高, 2=极高)'),
+        },
+        frequency: {
+          type: 'string',
+          enum: ['daily', 'weekly', 'monthly', 'yearly'],
+          description: t(
+            'Repeat frequency for daily tasks. "daily"=every X days, "weekly"=specific days of week, "monthly"=by day/week of month, "yearly"=annually',
+            '日常任务的重复频率。"daily"=每X天，"weekly"=每周特定日，"monthly"=每月特定日/周，"yearly"=每年'
+          ),
+        },
+        everyX: {
+          type: 'integer',
+          minimum: 1,
+          description: t(
+            'Repeat interval. For frequency="daily": every X days. "weekly": every X weeks. "monthly": every X months. Default is 1',
+            '重复间隔。frequency="daily"时：每X天。"weekly"：每X周。"monthly"：每X月。默认为1'
+          ),
+        },
+        repeat: {
+          type: 'object',
+          properties: {
+            m: { type: 'boolean', description: t('Monday', '周一') },
+            t: { type: 'boolean', description: t('Tuesday', '周二') },
+            w: { type: 'boolean', description: t('Wednesday', '周三') },
+            th: { type: 'boolean', description: t('Thursday', '周四') },
+            f: { type: 'boolean', description: t('Friday', '周五') },
+            s: { type: 'boolean', description: t('Saturday', '周六') },
+            su: { type: 'boolean', description: t('Sunday', '周日') },
+          },
+          description: t(
+            'Days of week when task is active (for frequency="weekly"). Example: {"m":true,"w":true,"f":true} for Mon/Wed/Fri',
+            '任务激活的星期几（用于 frequency="weekly"）。示例：{"m":true,"w":true,"f":true} 表示周一/三/五'
+          ),
+        },
+        daysOfMonth: {
+          type: 'array',
+          items: { type: 'integer', minimum: 1, maximum: 31 },
+          description: t(
+            'Days of month when task is due (for frequency="monthly"). Example: [1,15] for 1st and 15th',
+            '任务到期的月份日期（用于 frequency="monthly"）。示例：[1,15] 表示1号和15号'
+          ),
+        },
+        weeksOfMonth: {
+          type: 'array',
+          items: { type: 'integer', minimum: 0, maximum: 4 },
+          description: t(
+            'Weeks of month (0=first, 1=second, 2=third, 3=fourth, 4=last) combined with repeat days. Example: [0] with repeat.m=true for 1st Monday',
+            '月份的第几周（0=第一，1=第二，2=第三，3=第四，4=最后）配合 repeat。示例：[0] 配合 repeat.m=true 表示第1个周一'
+          ),
+        },
+        startDate: {
+          type: 'string',
+          description: t(
+            'Start date in ISO 8601 format (e.g., "2024-01-15"). Task becomes active on this date',
+            '开始日期，ISO 8601 格式（如 "2024-01-15"）。任务在此日期激活'
+          ),
         },
         checklist: {
           type: 'array',
@@ -149,7 +207,10 @@ const tools = [
   },
   {
     name: 'update_task',
-    description: t('Update task', '更新任务'),
+    description: t(
+      'Update task properties including schedule. For daily tasks, use frequency/everyX/repeat/startDate to modify repeat schedule',
+      '更新任务属性包括计划。对于日常任务，使用 frequency/everyX/repeat/startDate 修改重复计划'
+    ),
     inputSchema: {
       type: 'object',
       properties: {
@@ -168,6 +229,61 @@ const tools = [
         completed: {
           type: 'boolean',
           description: t('Completed flag', '是否完成'),
+        },
+        frequency: {
+          type: 'string',
+          enum: ['daily', 'weekly', 'monthly', 'yearly'],
+          description: t(
+            'Repeat frequency for daily tasks. "daily"=every X days, "weekly"=specific days of week, "monthly"=by day/week of month, "yearly"=annually',
+            '日常任务的重复频率。"daily"=每X天，"weekly"=每周特定日，"monthly"=每月特定日/周，"yearly"=每年'
+          ),
+        },
+        everyX: {
+          type: 'integer',
+          minimum: 1,
+          description: t(
+            'Repeat interval. For frequency="daily": every X days. "weekly": every X weeks. "monthly": every X months',
+            '重复间隔。frequency="daily"时：每X天。"weekly"：每X周。"monthly"：每X月'
+          ),
+        },
+        repeat: {
+          type: 'object',
+          properties: {
+            m: { type: 'boolean', description: t('Monday', '周一') },
+            t: { type: 'boolean', description: t('Tuesday', '周二') },
+            w: { type: 'boolean', description: t('Wednesday', '周三') },
+            th: { type: 'boolean', description: t('Thursday', '周四') },
+            f: { type: 'boolean', description: t('Friday', '周五') },
+            s: { type: 'boolean', description: t('Saturday', '周六') },
+            su: { type: 'boolean', description: t('Sunday', '周日') },
+          },
+          description: t(
+            'Days of week when task is active (for frequency="weekly"). Example: {"m":true,"w":true,"f":true} for Mon/Wed/Fri',
+            '任务激活的星期几（用于 frequency="weekly"）。示例：{"m":true,"w":true,"f":true} 表示周一/三/五'
+          ),
+        },
+        daysOfMonth: {
+          type: 'array',
+          items: { type: 'integer', minimum: 1, maximum: 31 },
+          description: t(
+            'Days of month when task is due (for frequency="monthly"). Example: [1,15] for 1st and 15th',
+            '任务到期的月份日期（用于 frequency="monthly"）。示例：[1,15] 表示1号和15号'
+          ),
+        },
+        weeksOfMonth: {
+          type: 'array',
+          items: { type: 'integer', minimum: 0, maximum: 4 },
+          description: t(
+            'Weeks of month (0=first, 1=second, 2=third, 3=fourth, 4=last) combined with repeat days. Example: [0] with repeat.m=true for 1st Monday',
+            '月份的第几周（0=第一，1=第二，2=第三，3=第四，4=最后）配合 repeat。示例：[0] 配合 repeat.m=true 表示第1个周一'
+          ),
+        },
+        startDate: {
+          type: 'string',
+          description: t(
+            'Start date in ISO 8601 format (e.g., "2024-01-15"). Task becomes active on this date',
+            '开始日期，ISO 8601 格式（如 "2024-01-15"）。任务在此日期激活'
+          ),
         },
       },
       required: ['taskId'],
