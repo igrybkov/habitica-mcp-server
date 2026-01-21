@@ -1,4 +1,6 @@
 // Simple i18n helper for Habitica MCP Server
+// Currently only English is supported. The translation mechanism is kept
+// for future language additions.
 const DEFAULT_LANG = 'en';
 let currentLang = DEFAULT_LANG;
 
@@ -10,6 +12,6 @@ export function getLanguage() {
   return currentLang;
 }
 
-export function t(en, zh) {
-  return currentLang.startsWith('zh') ? zh : en;
+export function t(en) {
+  return en;
 } 
